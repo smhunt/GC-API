@@ -1,0 +1,1330 @@
+FORMAT: 1A
+HOST: http://GC_device.local
+
+
+# Global Caché RESTful HTTP API
+[//]: # (*****************************************************************************************************)
+[//]: # (If making changes to this document, please increment the version number below, but do not remove it. )
+[![v1.12](http://www.globalcache.com/wp-content/uploads/logo-w-tag-trm.png)](http://globalcache.com)
+[//]: # (*****************************************************************************************************)
+
+
+The Global Caché RESTful HTTP API provides a standard interface for control and monitoring of a Global Caché unit and its associated or connected device(s).  
+The API is supported on the **iTach Flex** and peripheral **Flex Link cable** products.
+
+---
+
+The API presents:  
+
+1. **Resources:** 
+  * Representing logical functions or components of the device.
+  * Represented as a hierarchy of URL addresses, consistent with the organization of the physical device(s).
+2. **Attributes:**
+  * Representing specific properties of each resource.
+  * Represented as [JSON](http://www.json.org/)-formatted objects.
+
+In accordance with RESTful design best-practices, all API resources are hyperlinked, containing a
+`href` attribute whose value indicates the resource's absolute API path (URL). This allows API structure to be 
+discovered programmatically from any resource entry point via simple request to the current node/resource.
+
+---
+
+####The following API sections are organized heirarchically, starting with the Host functions, followed by each distinct Module function.  Each section lists resources, associated attributes, and available API requests.
+
+####Note: To see important details and examples for a particular resource, hover and click on the line with color-coded HTTP method and URL (as shown in the example image below).
+![](http://www.globalcache.com/temp/K5979Kb58Z/RESTHTTP_clickhere.png "") 
+<br>
+<br>
+
+# Group API entry point
+
+# docroot [/api]
+
+## Retrieve the root API resource containing a single resource representing the Host device. [GET]
+
++ Response 200
+
+    + Headers
+    
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api",
+                "host": {
+                    "href": "/api/host"
+                }
+            }
+            
+            
+
+# Group Host
+A resource representing the Host device (e.g., **iTach Flex**), containing its attributes (Fields) and child resources.
+
+# Host [/api/host]
+
+# List Host resources [GET]
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host",
+                "id": {
+                    "href": "/api/host/id"
+                },
+                "modules": {
+                    "href": "/api/host/modules"
+                }
+            }
+
+# Host ID [/api/host/id]
+
+# List Host ID attributes [GET]
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/id",
+                "make": "GlobalCache",
+                "model": "iTachFlex",
+                "firmwareVersion": "710-x000-yz",
+                "boardVersion": 11
+            }
+
+
+
+
+# Host modules [/api/host/modules]
+
+# List Host modules [GET]
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules",
+                "1": {
+                    "href": "/api/host/modules/1"
+                }
+            }
+            
+            
+# Group Modules
+Numbered resource(s) representing each Module, with child resources representing a Module's functionality.
+
+# Module [/api/host/modules/{mod_num}]
+
+Attributes common to all Module classes:
+
+| name      |  type  | access | value | description |
+|-----------|--------|:------:|:------------------|:---------------------------------------|
+| id<br><br><br><br><br><br><br><br>| string<br><br><br><br><br><br><br><br> |  R/W<br><br><br><br><br><br><br><br>   | <br><br>`"FLC-RS"`<br>`"FLC-SL"*`<br>`"FLC-3E"`<br>`"FLC-2E1B"`<br>`"FLC-BL"` <br>`"G-IR-E"`| Product ID of module, used for manual selection<br><br>Flex Link Relay & Sensor cable<br>Flex Link RS232/RS485 Serial cables`*`<br>Flex Link 3 Emitter cable<br>Flex Link 2E1B cable<br>Flex Link Blaster cable<br>Global IR Emitter |
+| class<br><br><br><br>     | string<br><br><br><br> |  R<br><br><br><br>     | <br>`"Infrared"`<br>`"Serial"`<br>`"Relay/Sensor"` | Class of Module I/O<br><br><br><br> |
+| type<br><br><br><br><br><br><br><br><br> | string<br><br><br><br><br><br><br><br><br> |  R<br><br><br><br><br><br><br><br><br>  |  <br><br>`"4R4S"`<br>`"RS232"`<br>`"RS485"`<br>`"3Emitter"`<br>`"2Emitter1Blaster"`<br>`"1Blaster"` <br>`"1Emitter"`  | Type of Module I/O<br><br> 4 Relay & 4 Sensor<br>Serial RS232<br>Serial RS485<br>Triple IR Emitter<br>Two IR Emitter / One IR Blaster cable<br>1 blaster cable (FLC-BL) <br>1 emitter cable (G-IR-E) |
+
+*Note: The Flex Link Serial cable is available in two models, RS232 and RS485. The same `id` value of `FLC-SL` is used for either cable (the Flex will automatically detect the serial cable type/version).  
+<br>
+Attributes unique to `Serial` class modules :
+
+| name      |  type  | access | value | description |
+|-----------|--------|:------:|:------------------:|:----------------------------------------|
+| cableID<br><br><br><br><br> | number<br><br><br><br><br> |  R<br><br><br><br><br>  | `0`<br>`1`<br>`2`<br>`3`<br>`4`|  unknown or no cable connected<br>RS232 v1<br>RS232 v2<br>RS232 v3<br>RS485 v1 |
+
+
+
+# Get Module attributes [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href": "/api/host/modules/1",
+                "id": "FLC-RS",
+                "class": "Relay/Sensor",
+                "type": "4R4S",
+                "relays": {
+                    "href": "/api/host/modules/1/relays"
+                },
+                "sensors": {
+                    "href": "/api/host/modules/1/sensors"
+                }
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+               "href" : "/api/host/modules/1",
+               "id" : "FLC-SL",
+               "class" : "Serial",
+               "type" : "RS232",
+               "cableID" : 3,
+               "ports" : {
+                  "href" : "/api/host/modules/1/ports"
+               }
+            }
+            
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+               "href" : "/api/host/modules/1",
+               "id" : "FLC-2E1B",
+               "class" : "Infrared",
+               "type" : "2Emitter1Blaster",
+            }
+
+# Set Module Type [PUT]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+
++ Request
+    + Headers
+
+            Content-Type:application/json
+            Content-Length:15
+
+    + Body
+
+            { "id" : "FLC-RS" }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules/1",
+                "id": "FLC-RS",
+                "class": "Relay/Sensor",
+                "type": "4R4S",
+                "relays": {
+                    "href": "/api/host/modules/1/relays"
+                },
+                "sensors": {
+                    "href": "/api/host/modules/1/sensors"
+                }
+            }
+
+
+# Group Relay Outputs
+###### Resources representing physical relay and logical relay outputs.
+
+Relay module outputs are configurable and can provide the functionality of SPST, SPDT, and DPDT relay types. 
+Configuration is accomplished through hardware jumpers and software API. 
+(For hardware jumper configuration details including supported relay types and requisite jumper settings, please refer to the <a target="_blank" href=http://www.globalcache.com/downloads>Flex Link Relay & Sensor Cable Tech Guide.</a>) 
+Software configuration, control, and monitoring of the relay outputs is accomplished via the API resources described in this section.  
+
+To best understand the operation of Global Caché relay module outputs, clarification must be made regarding 
+the concepts of **physical relay port**, and **logical relay**:
+
+  * A **physical relay port** is the actual hardware port implemented by an onboard SPST relay.
+    It cannot be controlled directly. However, its current state can be read. 
+    A Global Caché relay module typically provides an even-numbered set of physical relay ports (for example, 4 on the Flex Link Relay & Sensor cable). 
+  * A **logical relay** is a logical abstraction of physical relay ports, which provides SPST, SPDT, or DPDT relay 
+    functionality. The available physical relay ports determine the possible logical relay configurations (see Figures 1, 2, and 3 below). 
+    Software configuration and control is accomplished via the `../relays/logicals/{logical_addr}` API resource (see below).  
+<br>
+
+---  
+
+**Figure 1** below shows available logical relay types and their footprint (how many physical ports they occupy).  
+<br>
+<img src="http://www.globalcache.com/temp/K5979Kb58Z/RS.logicalrelays_types.png" alt="Logical Relay Types" width="638" height="174"> 
+<br> 
+
+---  
+
+<br>
+**Figure 2** below illustrates the mapping of logical relays within the physical relay ports.
+Each yellow box represents a logical relay of various type (see Figure 1), while the number in the box represents the logical address, coinciding with `{logical_addr}` used in API requests.  
+<br>
+<img src="http://www.globalcache.com/temp/K5979Kb58Z/RS.logicalrelays_mapaddress.png" alt="Logical Relay Mappings and Address" width="638" height="238"> 
+
+---  
+
+<br>
+**Figure 3** below summarizes the information in Figures 1 and 2, and shows some examples of typical logical relay configurations.
+Note, there are many additional possible combinations which are not shown.   
+<br>
+<img src="http://www.globalcache.com/temp/K5979Kb58Z/RS.logicalrelays_exampleconfigs.png" alt="Logical Relay Example Configurations" width="638" height="412"> 
+
+<br>
+<br>
+
+# Relays [/api/host/modules/{mod_num}/relays]
+
+# List relay resources [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+
++ Response 200
+
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules/1/relays",
+                "ports": {
+                    "href": "/api/host/modules/1/relays/ports"
+                },
+                "logicals": {
+                    "href": "/api/host/modules/1/relays/logicals"
+                }
+            }
+            
+
+# Physical Relay Ports [/api/host/modules/{mod_num}/relays/ports]
+
+# List physical relay ports [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href": "/api/host/modules/1/relays/ports",
+                "1": {
+                    "href": "/api/host/modules/1/relays/ports/1"
+                },
+                "2": {
+                    "href": "/api/host/modules/1/relays/ports/2"
+                },
+                "3": {
+                    "href": "/api/host/modules/1/relays/ports/3"
+                },
+                "4": {
+                    "href": "/api/host/modules/1/relays/ports/4"
+                }
+            }
+
+# Physical Relay Port [/api/host/modules/{mod_num}/relays/ports/{port}]
+
++ Attributes
+    + href : /api/host/modules/1/relays/ports/1 (string)
+    + type (string)
+    + access (string)
+    + terminals (string)
+    + state (string)
+
+# Get physical relay port attributes [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+    + port: `1` (number, required) - physical relay port number
+    
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href": "/api/host/modules/1/relays/ports",
+                "1": {
+                    "href": "/api/host/modules/1/relays/ports/1"
+                },
+                "2": {
+                    "href": "/api/host/modules/1/relays/ports/2"
+                },
+                "3": {
+                    "href": "/api/host/modules/1/relays/ports/3"
+                },
+                "4": {
+                    "href": "/api/host/modules/1/relays/ports/4"
+                }
+            }
+
+
+# Logical Relay Port [/api/host/modules/{mod_num}/relays/logicals]
+
+# List logical relay ports [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules/1/relays/logicals",
+                "1": {
+                    "href": "/api/host/modules/1/relays/logicals/1"
+                },
+                "2": {
+                    "href": "/api/host/modules/1/relays/logicals/2"
+                },
+                "3": {
+                    "href": "/api/host/modules/1/relays/logicals/3"
+                },
+                "4": {
+                    "href": "/api/host/modules/1/relays/logicals/4"
+                }
+            }
+
+
+# Logical Relays [/api/host/modules/{mod_num}/relays/logicals/{logical_addr}]
+Attributes of logical relays:
+
+| name      |  type  | access | value | description |
+|-----------|--------|:------:|:------------------|----------------------------------------|
+| type<br><br><br><br><br>        | string<br><br><br><br><br> |  R/W<br><br><br><br><br>   | `"Disabled"`<br>`"SPST"`<br>`"SPDT"`<br>`"DPDT"`| disabled/unconfigured<br>Single Pole Single Throw (uses 1 physical relay port)<br>Single Pole Double Throw (uses 2 physical relay ports)<br>Double Pole Double Throw (uses 4 physical relay ports) |
+| portMap<br><br><br><br><br><br><br> | string<br><br><br><br><br><br><br> | R<br><br><br><br><br><br><br> | <br>`"1"`<br>`"1-2"`<br>`"1-2-3-4"`<br>`"2"`<br>`"3"`<br>`"3-4"`<br>`"4"` | Physical port mapping (ports occupied by the logical relay)<br><br><br><br><br><br><br> |
+| access     | string |  R     | "RW" |  |
+| state<br><br><br><br><br> | string<br><br><br><br><br> | R/W<br><br><br><br><br> | `"off"`<br>`"on"`<br>`"on1"`<br>`"on2"`  | all contacts open<br>SPST closed<br>SPDT/DPDT closed position 1<br>SPDT/DPDT closed position 2 |
+# Get logical relay attributes [GET]
+
++ Parameters
+    + mod_num: `1` (number, required) - module number
+    + logical_addr: `1` (number, required) - logical relay address
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href": "/api/host/modules/1/relays/logicals/1",
+                "type": "Disabled",
+                "portMap": "",
+                "access": "RW",
+                "state": ""
+            }    
+
+# Modify type or state attributes of a logical relay [PUT]
+
++ Parameters
+    + mod_num (number, required, `1`) ... module number
+    + logical_addr (number, required, `1`) ... logical relay address
+
++ Request
+    + Headers
+
+            Content-Type:application/json
+            Content-Length:29
+
+    + Body
+
+            {
+                "type": "SPST",
+                "state": "off"
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules/1/relays/logicals/1",
+                "type": "SPST",
+                "portMap": "1",
+                "access": "RW",
+                "state": "off"
+            }
+
+
+            
+# Group Sensor Inputs
+#### Resources representing the sensor inputs
+
+Sensor inputs provide bi-stable (on/off) sensing of contact closure and voltage threshold.
+Configuration is accomplished through hardware jumpers and software API. (For hardware and jumper configuration details, please refer to the <a target="_blank" href=https://app.box.com/s/kza7mlqyn4kwekm28iyd3dpfv46pd814>Tech Guide: Flex Link Relay & Sensor Cable.</a>) 
+Software configuration and monitoring of the sensor inputs is accomplished via the API resources described in this section.
+
+Sensor state can be obtained by polling with a simple GET request or by automatic notification. 
+The Sensor Notify feature provides automatic/asynchronous notification of change in sensor state. 
+A UDP multicast message can be broadcast when either of the following conditions occurs:  
+ * A time interval elapses.
+ * A sensor input changes state.  
+ 
+Both the time-interval and UDP port-number are configurable for each sensor port, as shown in the following sections.
+
+# Sensors [/api/host/modules/{mod_num}/sensors]
+
+# Get a list of root sensor attributes and resources [GET]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:text/plain; charset=UTF-8
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href": "/api/host/modules/1/sensors",
+                "dataType": "bistable",
+                "access": "R",
+                "ports": {
+                    "href": "/api/host/modules/1/sensors/ports"
+                }
+            }            
+
+# Sensor ports [/api/host/modules/{mod_num}/sensors/ports]
+
+# Get an ordered list of sensor port resources [GET]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href": "/api/host/modules/1/sensors/ports",
+                "1": {
+                    "href": "/api/host/modules/1/sensors/ports/1"
+                },
+                "2": {
+                    "href": "/api/host/modules/1/sensors/ports/2"
+                },
+                "3": {
+                    "href": "/api/host/modules/1/sensors/ports/3"
+                },
+                "4": {
+                    "href": "/api/host/modules/1/sensors/ports/4"
+                }
+            }    
+
+# Sensor port attributes [/api/host/modules/{mod_num}/sensors/ports/{sensor_num}]
+
+# Get terminals and state of a sensor port [GET]
+
+| name      |  type  | access | value | description |
+|-----------|--------|:------:|:-----------------:|----------------------------------------|
+| terminals<br><br><br><br><br> | string<br><br><br><br><br> |  R<br><br><br><br><br>   | `"9-10"`<br>`"11-12" `<br>`"13-14" `<br>`"15-16" ` | Physical terminal numbers used by the sensor port<br><br><br><br><br> |
+| state<br><br> | integer<br><br> |  R/W<br><br>  | `0`<br>`1` | `*`contacts closed, or voltage below threshold<br>`*`contacts open, or voltage above threshold |
+
+\*In contact closure mode, input values may appear inverted. This is due to the inputs being pulled to a logical-high voltage state. When a sensed contact is open, the sensed value is `1`. If the sensed contact closes, this pulls the input low and yields a `0` value.  
+In voltage-sense mode, the value is `0` when sensed voltage is below threshold, and `1` when sensed voltage is above threshold.
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + sensor_num (required, `1`) ... sensor port number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href":"/api/host/modules/1/sensors/ports/1",
+                "terminals":"9-10",
+                "state":0,
+                "notify":{
+                    "href":"/api/host/modules/1/sensors/ports/1/notify"
+                }
+            }
+            
+# Sensor Notify [/api/host/modules/{mod_num}/sensors/ports/{sensor_num}/notify]
+
+| name  | type    | access | value         | description                                                             |
+|-------|---------|:------:|---------------|-------------------------------------------------------------------------|
+| port  | integer |   R/W  | `0` - `65535` | notify beacon UDP port value ( `0` = all beacons disabled )             |
+| timer | integer |   R/W  | `0` - `65535` | notify beacon time interval, seconds ( `0` = periodic beacon disabled ) |
+
+# Get Sensor Notify configuration [GET]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + sensor_num (required, `1`) ... sensor port number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href":"/api/host/modules/1/sensors/ports/1/notify",
+                "port":0,
+                "timer":0
+            }
+            
+# Change Sensor Notify configuration [PUT]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + sensor_num (required, `1`) ... sensor port number
+
++ Request
+    + Headers
+
+            Content-Type:application/json
+            Content-Length:29
+
+    + Body
+
+            {
+                "port": "9132",
+                "timer": "10"
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href":"/api/host/modules/1/sensors/ports/1/notify",
+                "port":9132,
+                "timer":10
+            }
+
+# Group Serial
+#### Resources representing serial I/O functionality
+iTach Flex supports serial communication in RS232 or RS485 standards using Flex Link Serial peripheral cables.
+The following resources allow configuration of common serial settings including baud rate, data bits, parity, stopbits, flow control (RS232), and duplex (RS485).
+
+Additionally, the Flex Link RS232 Serial cable allows software-selectable cable gender and crossover setting. 
+This offers flexibility when interfacing to various serial device connectors, and when using any serial extension cable type.
+
+
+# Serial ports [/api/host/modules/{mod_num}/ports]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+
+## Get a list of available serial ports [GET]
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href":"/api/host/modules/1/ports",
+                "1":{
+                    "href":"/api/host/modules/1/ports/1"
+                }
+            }
+
+# Serial port attributes and resources [/api/host/modules/{mod_num}/ports/{port_num}]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + port_num (required, `1`) ... serial port number
+
+## Get a list of serial port resources [GET]
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href":"/api/host/modules/1/ports/1",
+                "access":"RW",
+                "type":"data_stream",
+                "config":{
+                    "href":"/api/host/modules/1/ports/1/config"
+                },
+                "data":{
+                    "href":"/api/host/modules/1/ports/1/data"
+                }
+            }
+
+# Serial Configuration [/api/host/modules/{mod_num}/ports/{port_num}/config]
+
+| name        | type    | access |               value               | description                                                                                                              |    |
+|-------------|---------|:------:|:---------------------------------:|--------------------------------------------------------------------------------------------------------------------------|:--:|
+| gender      | string  |   R/W  | <br>`"Male"`<br><br><br><br>`"Female"`<br><br>| cable gender (RS232 only) <br>DTE, Pin 2 = RX, Pin 3 = TX<br>Pin 7 = RTS, Pin 8 = CTS (flowcontrol = "Hardware")<br><br>DCE, Pin 2 = TX, Pin 3 = RX (internal crossover)<br>Pin 7 = CTS, Pin 8 = RTS (flowcontrol = "Hardware")|<img src="http://www.globalcache.com/temp/K5979Kb58Z/DB9 pinouts male female.png" alt="" width="108" height="116"> |
+| baudrate    | integer |   R/W  |          `300` - `115200`         | baud rate                                                                                                                ||
+| databits    | integer |    R   |                `8 `               | data bits                                                                                                                ||
+| parity      | string  |   R/W  | `"None"`<br>`"Odd" `<br>`"Even" ` | no parity<br>odd parity<br>even parity                                                                                   ||
+| stopbits    | integer |   R/W  |            `1`<br>`2 `            | stop bits                                                                                                                ||
+| flowcontrol | string  |   R/W  |     `"None"`<br>`"Hardware" `     | flow control (RS232 only)                                                                                    ||
+| duplex      | string  |   R/W  |       `"Half"`<br>`"Full" `       | duplex (RS485 only)                                                                                      ||
+
+## Get serial port configuration [GET]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + port_num (required, `1`) ... serial port number
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+    
+            {
+                "href":"/api/host/modules/1/ports/1/config",
+                "gender":"Male",
+                "baudrate":19200,
+                "databits":8,
+                "parity":"None",
+                "stopbits":1,
+                "flowcontrol":"None",
+                "duplex":"Full"
+            }       
+
+# Change serial port configuration [PUT]
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + port_num (required, `1`) ... serial port number
+
++ Request
+    + Headers
+
+            Content-Type:application/json
+            Content-Length:118
+
+    + Body
+
+            {
+                "gender":"Male",
+                "baudrate":115200,
+                "databits":8,
+                "parity":"None",
+                "stopbits":2,
+                "flowcontrol":"Hardware",
+                "duplex":"Full"
+            }       
+
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:max-age=600
+
+    + Body
+
+            {
+                "href":"/api/host/modules/1/ports/1/config",
+                "gender":"Male",
+                "baudrate":115200,
+                "databits":8,
+                "parity":"None",
+                "stopbits":2,
+                "flowcontrol":"Hardware",
+                "duplex":"Full"
+            }       
+
+# Serial Data I/O [/api/host/modules/{mod_num}/ports/{port_num}/data]
+# Send serial data [POST]
+
+
++ Parameters
+    + mod_num (required, `1`) ... module number
+    + port_num (required, `1`) ... serial port number
+
++ Request
+    + Headers
+
+            Content-Type: text/plain; charset=UTF-8
+            Content-Length: 12
+
+    + Body
+
+            Hello World.
+
++ Response 200
+    + Headers
+        
+            Connection: close
+            Content-Type: text/plain; charset=UTF-8
+            Cache-Control: no-cache
+
+
+# Group API v1
+###### The following resources are presented by HTTP API v1.
+These resources will eventually be updated to support the more RESTful patterns of the new API version.
+
+## Group Version
+
+## GET /api/v1/version
+Get the device version and other identity information
+
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+    
+            {
+                "make": "GlobalCache",
+                "model": "iTachFlexEthernet",
+                "host": "Flex",
+                "firmwareVersion": "710-3000-11",
+                "userName": "",
+                "password": "",
+                "boardVersion": "11"
+            }
+            
+            
+
+# Group Network
+###### Host networking resources (Ethernet or WiFi)
+Following are attributes of the `network` resource:
+
+| name               |        type        | access |               value                     | description                                                                              |
+|--------------------|:------------------:|:------:|:---------------------------------------:|------------------------------------------------------------------------------------------|
+| dhcp<br><br><br>   | string<br><br><br> |   RW<br><br><br>   |     <br>`"true"`<br>`"false"`           | automatic or static host IP address<br>DHCP enabled<br>DHCP disabled, must set static IP |
+| ipAddress          |       string       |   RW   | IPv4 address<br>e.g.,`"192.168.1.70"`   | IP address (must be set if DHCP is disabled)                                             |
+| gateway            |       string       |   RW   | IPv4 address<br>e.g.,`"192.168.1.1"`    | gateway IP address (must be set if DHCP is disabled)                                     |
+| subnetMask         |       string       |   RW   | IPv4 mask<br>e.g.,`"255.255.255.0"`     | subnet mask (must be set if DHCP is disabled)                                            |
+| primaryDNSServer   |       string       |   RW   | IPv4 address<br>e.g.,`"208.67.222.222"` | primary DNS IP address (must be set if DHCP is disabled)                                 |
+| secondaryDNSServer |       string       |   RW   | IPv4 address<br>e.g.,`"209.244.0.3"`    | secondary DNS IP address (should be set if DHCP is disabled)                             |
+| netBIOSName        |       string       |   RW   |        e.g., `"FLEX"`                   | host network name, up to 15 characters                                                                        |
+
+Additional attributes for WiFi devices:
+
+| name               |        type        | access |               value               | description                                                                              |
+|--------------------|:------------------:|:------:|:---------------------------------:|------------------------------------------------------------------------------------------|
+| ssid               |       string       |   RW   | e.g.,`"ITACHFLEX01234"`     | WiFi network SSID, up to 32 characters (see section below for usage)                                          |
+| securityMode<br><br><br><br><br>       |       string<br><br><br><br><br>       |   RW<br><br><br><br><br>   | <br>`"0"`<br> `"1"`<br>`"2"`<br>`"3"` | WiFi security mode<br>Open<br>WEP<br>WPA<br>WPA2                 |
+| securityKey        |       string       |    W   |                 ``                | WiFi security passphrase                                                                 |
+
+
+# /api/v1/network
+
+# GET
+Get a list of network attributes of the host
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            {
+                "dhcp": "true",
+                "gateway": "192.168.1.1",
+                "ipAddress": "192.168.1.70",
+                "subnetMask": "255.255.255.0",
+                "primaryDNSServer": "192.168.1.1",
+                "secondaryDNSServer": "0.0.0.0",
+                "netBIOSName": "ITACHFLEX123456"
+            }
+
+# PUT
+Set network attributes of the host    
+
++ Request
+
+    + Headers
+
+            Content-Type:application/json
+            Content-Length:193
+
+    + Body
+            
+            {
+                "dhcp": "false",
+                "gateway": "192.168.1.1",
+                "ipAddress": "192.168.1.80",
+                "subnetMask": "255.255.255.0",
+                "primaryDNSServer": "192.168.1.1",
+                "secondaryDNSServer": "0.0.0.0",
+                "netBIOSName": "ITACHFLEX123456"
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            {
+                "dhcp": "false",
+                "gateway": "192.168.1.1",
+                "ipAddress": "192.168.1.80",
+                "subnetMask": "255.255.255.0",
+                "primaryDNSServer": "192.168.1.1",
+                "secondaryDNSServer": "0.0.0.0",
+                "netBIOSName": "ITACHFLEX123456"
+            }
+
+
+# GET /api/v1/network/ssids
+Perform a WiFi scan, then return an array of objects representing available WiFi networks  
+(Results can be used to provision to an available WiFi network, by request to `/api/v1/network`)
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+    
+            [
+                {
+                    "ssid": "ssid1",
+                    "networkType": "1",
+                    "config": "0",
+                    "channel": "1",
+                    "strength": "60"
+                },
+                {
+                    "ssid": "ssid2",
+                    "networkType": "3",
+                    "config": "0",
+                    "channel": "6",
+                    "strength": "64"
+                }
+            ]    
+
+    
+# Group Connectors
+###### Resources representing I/O interfaces (IR and Serial)
+The Connectors resource has the following attributes:
+
+| field/attribute | type   | default        | description                                                                                                |
+|-----------------|--------|----------------|------------------------------------------------------------------------------------------------------------|
+| address         | string | `"connectors/1"` | physical connector(port) number                                                             |
+| configuration<br><br>   | string<br><br> | `"irports/1"`<br>`"serialports/1"`    | IR<br>Serial                                   |
+| type<br><br><br><br><br><br> | string<br><br><br><br><br><br> | `"IR"`<br>`"IRBlaster"`<br>`"IRTriPort"`<br>`"IRTriPortBlaster"`<br>`"Serial"`           | configured connector type<br><br><br><br><br><br>  |
+
+
+# GET /api/v1/connectors
+Retrieve an array of objects representing all available connectors and their current configuration  
+Note: Flex supports a single (1) connector
+
++ Response 200
+
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            [
+                {
+                    "address": "irports/1",
+                    "configuration": "connectors/1",
+                    "type": "IR"
+                }
+            ]    
+
++ Response 200
+
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            [
+                {
+                    "address": "serialports/1",
+                    "configuration": "connectors/1",
+                    "type": "Serial"
+                }
+            ]    
+
+   
+# GET /api/v1/connectors/{connector_num}
+Retrieve the configuration of `{connector_num}`
+
++ Parameters
+    + connector_num (required, number, `1`) ... physical connector number<br>(left-to-right order)
+
++ Response 200
+
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+                {
+                    "address": "irports/1",
+                    "configuration": "connectors/1",
+                    "type": "IR"
+                }
+
++ Response 200
+
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+                {
+                    "address": "serialports/1",
+                    "configuration": "connectors/1",
+                    "type": "Serial"
+                }
+
+
+# Group IR Ports
+#### Resources representing the IR output ports
+
+# POST /api/v1/irports/{IR_port_number}/sendir
+Transmit an IR code  
+
+--
+The `sendir` resource has the following attributes:
+
+| name      |  type  | access |      value     | description                                                     |
+|-----------|:------:|:------:|:--------------:|-----------------------------------------------------------------|
+| frequency | string |    W   | `"15000"` - `"500000"` | frequency of the IR code (Hz)                                   |
+| preamble  | string |    W   | `"<on1>,<off1>,...,<onN>,<offN>"` | comma separated list of on/off pulse pairs for IR preamble |
+| irCode    | string |    W   | `"<on1>,<off1>,...,<onN>,<offN>"` | comma separated list of on/off pulse pairs for IR code |
+| repeat    | string |    W   | `"1"` - `"20"` | number of times to repeat `irCode` (but not `preamble`)                         |
+
++ Parameters
+    + IR_port_number (required, number, `1`) ... physical IR port number<br>(left-to-right order)
+    
++ Request
+    + Headers
+
+            Content-Length:171
+            Content-Type:application/json
+
+    + Body
+
+            {
+                "frequency":"38095",
+                "preamble":"320,160",
+                "irCode":"20,60,20,60,20,20,20,20,20,20,20,20,20,20,20,20,20,60,20,60,20,60,20,20,20,60,20,20,20,20,20,20,20,873",
+                "repeat":"1"
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+
+# Group Serial Port
+###### Resource representing the serial port
+The `serialports` resource has the following attributes:
+
+| field/attribute | type   | default | description                                                                                                                                  |
+|-----------------|--------|---------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| baudrate        | string | `"19200"` | serial baud rate<br>`300`<br>`600`<br>`1200`<br>`2400`<br>`4800`<br>`9600`<br>`14400`<br>`19200`<br>`38400`<br>`57600`<br>`115200` |
+| parity          | string | `"0"`     | parity<br>`0` - None<br>`1` - Even<br>`2` - Odd                                                                                              |
+| flowcontrol     | string | `"0"`     | flowcontrol setting<br>`0` - none<br>`1` - hardware (CTS/RTS)                                                                                |
+| databits        | string | `"8"`     | data bits (fixed at 8)                                                                                                                       |
+| stopbits        | string | `"1"`     | stop bits (fixed at 1)                                                                                                                       |
+| crossover       | string | `"false"` | cable crossover mode<br>`false` - no crossover<br>`true` - crossover enabled                                                              |
+| version         | string |         | serial cable version number<br>`1`<br>`2`                                                                                                    |
+    
+
+# /api/v1/serialports/{serial_port_num}
+
+# GET 
+Retrieve the current configuration of a serial port
+
++ Parameters
+    + serial_port_num (required, number, `1`) ... physical IR port number<br>(left-to-right order)
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            {
+                "baudrate": "19200",
+                "flowcontrol": "0",
+                "parity": "0",
+                "stopbits": "1",
+                "databits": "8",
+                "crossover": "false",
+                "version": "1"
+            }
+            
+# PUT
+Set the configuration of a serial port
+
++ Parameters
+    + serial_port_num (required, number, `1`) ... physical IR port number<br>(left-to-right order)
+
++ Request
+    + Headers
+
+            Content-Length:101
+            Content-Type:application/json
+            
+    + Body
+    
+            {
+                "baudrate": "38400",
+                "flowcontrol": "0",
+                "parity": "0",
+                "stopbits": "1",
+                "databits": "8",
+                "crossover": "false"
+            }
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            {
+                "baudrate": "38400",
+                "flowcontrol": "0",
+                "parity": "0",
+                "stopbits": "1",
+                "databits": "8",
+                "crossover": "false"
+            }
+
+
+# POST /api/v1/serialports/{serial_port_num}/sendserial
+Send data to the serial port (to a connected serial device)
+
++ Parameters
+    + serial_port_num (required, number, `1`) ... physical IR port number<br>(left-to-right order)
+
++ Request
+    + Headers
+
+            Content-Type:text/plain; charset=UTF-8
+            Content-Length:12
+
+    + Body
+
+            Hello World!
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:text/plain; charset=UTF-8
+            Cache-Control:no-cache
+
+    + Body
+
+
+# Group IR Learning
+###### Resource representing the IR learn function
+
+# GET /api/v1/irlearn
+Initiate learning of a single IR command
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            {
+                "frequency": "36199",
+                "preamble": "",
+                "irCode": "32,32,65,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,3267,32,32,65,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,3619",
+                "repeat": "1"
+            }
+    
+
+#Group File System
+###### Resources representing file system functions
+
+Note: The Flex file system is not yet fully implemented and is not yet officially supported.  
+The file system functions shown here are a subset of full functionality and are provided only for user testing.
+
+# GET /api/v1/files
+Retrieve a listing of file system contents
+
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+
+    + Body
+
+            [
+                {
+                    "name": "VOLUMEID   ",
+                    "size": "0",
+                    "attributes": "8",
+                    "timestamp": "4352"
+                },
+                {
+                    "name": "UserVar.txt",
+                    "size": "838",
+                    "attributes": "32",
+                    "timestamp": "29306"
+                }
+            ]
+
+# POST /api/v1/files/{filename}
+Upload a file to the file system
+
++ Parameters
+    + filename (required, string, `index.htm`) ... name to 
+
++ Request
+    + Headers
+
+            Content-Encoding:gzip
+            Content-Length:4186
+
+    + Body
+    
+            (file content not displayed)
+            
++ Response 200
+    + Headers
+
+            Connection:close
+            Content-Type:application/json
+            Cache-Control:no-cache
+            
+            
+# POST /api/v1/disk/format
+Format the file system
+
++ Response 200
+    + Headers
+    
+            Connection: close
+            Content-Type: application/json
+            Cache-Control: no-cache
